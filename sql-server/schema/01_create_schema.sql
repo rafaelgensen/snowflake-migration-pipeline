@@ -1,0 +1,2 @@
+-- Schema
+CREATE SCHEMA HR;
