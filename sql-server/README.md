@@ -11,7 +11,7 @@ erDiagram
         nvarchar FirstName
         nvarchar LastName
         date HireDate
-        nvarchar Department
+        int DepartmentID FK
         bit IsActive
     }
 
@@ -23,29 +23,30 @@ erDiagram
         date EndDate
     }
 
-    HR_Departmnts {
-        int id PK
-        varchar namee
+    HR_Departments {
+        int DepartmentID PK
+        varchar Name
     }
 
     HR_Positions {
-        int posid PK
-        int depid FK
-        varchar title
+        int PositionID PK
+        int DepartmentID FK
+        varchar Title
     }
 
     HR_Benefits {
-        int BENid PK
-        nvarchar descptn
-        date startD
-        date endD
-        int emp FK
+        int BenefitID PK
+        nvarchar Description
+        date StartDate
+        date EndDate
+        int EmployeeID FK
     }
 
     %% Relationships
     HR_Employees ||--o{ HR_Salaries : "has salaries"
-    HR_Departmnts ||--o{ HR_Positions : "has positions"
+    HR_Departments ||--o{ HR_Positions : "has positions"
     HR_Employees ||--o{ HR_Benefits : "receives benefits"
+    HR_Departments ||--o{ HR_Employees : "belongs to department"
 
     %% Views (not physical tables, but shown as derived entities)
     vw_RawEmployeeSalary }o--|| HR_Employees : "derived from"
@@ -53,7 +54,6 @@ erDiagram
 
     vw_AvgSalaryByDepartment }o--|| HR_Employees : "derived from"
     vw_AvgSalaryByDepartment }o--|| HR_Salaries : "derived from"
-
 ```
 
 ## Structure
@@ -88,6 +88,9 @@ erDiagram
 - **Consumption layer via views**:  
   - `vw_EmployeeCurrentSalary` exposes current salary without ETL embedding business logic.  
   - Trade-off: Additional object to maintain, but decouples ETL from transactional schema.
+
+- **3NF**: 
+  - For OLTP consistency. 
 
 ## Views: Raw vs. Analytical
 
