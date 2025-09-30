@@ -1,0 +1,74 @@
+name: Terraform - Capabilities Provisioning
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+
+  workflow_dispatch:
+    inputs:
+      destroy:
+        description: "Deseja destruir os recursos?"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+env:
+  TF_VAR_API_KEY_CG: ${{ secrets.API_KEY_CG }}
+  AWS_REGION: us-east-1
+
+jobs:
+  terraform:
+    name: Terraform Deploy or Destroy - Capabilities
+    runs-on: ubuntu-latest
+    environment: API_KEY
+
+    if: startsWith(github.head_ref || github.ref_name, 'prod/') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7
+
+      - name: Atualizar AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install --update
+          aws --version
+
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Inicializar Terraform com backend S3
+        run: terraform -chdir=infra init -input=false
+
+      - name: Validar configuração Terraform
+        run: terraform -chdir=infra validate
+
+      - name: Criar plano Terraform
+        run: terraform -chdir=infra plan -out=tfplan.out
+
+      - name: Aplicar ou Destruir recursos
+        run: |
+          if [ "${{ github.event.inputs.destroy }}" == "true" ]; then
+            echo "⚠️ Destruindo infraestrutura..."
+            terraform -chdir=infra destroy -auto-approve
+          else
+            echo "✅ Aplicando infraestrutura..."
+            terraform -chdir=infra apply -auto-approve tfplan.out
+          fi
