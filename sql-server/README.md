@@ -120,3 +120,17 @@ Example: `vw_AvgSalaryByDepartment`
 - Seed data included for testing ETL pipelines.
 
 ---
+
+## Database Documentation Support
+
+This document was generated with the help of a language model (LLM), which analyzed and interpreted the SQL DDL and view definitions from the existing database. Based on this input, the schema was reviewed, and improvements were suggested to better align with normalization best practices (up to 3rd Normal Form).
+
+### Key Contributions
+
+- Identified and resolved denormalization issues in the `HR.Employees` table by replacing a textual `Department` field with a foreign key (`DepartmentID`) referencing a new `HR.Departments` table.
+- Created the missing tables: `HR.Departments`, `HR.Positions`, and `HR.Benefits`, including appropriate primary and foreign key constraints.
+- Refactored existing views (`vw_RawEmployeeSalary`, `vw_AvgSalaryByDepartment`) to match the updated, normalized schema.
+- Provided corrected DDL statements for schema adjustments and view definitions.
+- Ensured that all table and column names follow consistent, clear naming conventions.
+
+This process helped organize and document the HR schema structure more effectively, making it easier to maintain, extend, and integrate with modern data pipelines or analytics workflows.

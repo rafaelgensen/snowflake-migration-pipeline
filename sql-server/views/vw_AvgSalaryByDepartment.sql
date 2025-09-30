@@ -1,7 +1,6 @@
-CREATE VIEW HR.vw_AvgSalaryByDepartment
-AS
+CREATE VIEW HR.vw_AvgSalaryByDepartment AS
 SELECT 
-    e.Department,
+    d.Name AS Department,
     AVG(s.Amount) AS AvgSalary,
     COUNT(DISTINCT e.EmployeeID) AS NumEmployees,
     MAX(s.Amount) AS MaxSalary,
@@ -9,5 +8,7 @@ SELECT
 FROM HR.Employees e
 JOIN HR.Salaries s
     ON e.EmployeeID = s.EmployeeID
+JOIN HR.Departments d
+    ON e.DepartmentID = d.DepartmentID
 WHERE s.EndDate IS NULL
-GROUP BY e.Department;
+GROUP BY d.Name;
