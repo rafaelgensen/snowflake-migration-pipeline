@@ -72,3 +72,4 @@ jobs:
             echo "✅ Aplicando infraestrutura..."
             terraform -chdir=infra apply -auto-approve tfplan.out
           fi
+  
